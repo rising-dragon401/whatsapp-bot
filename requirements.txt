@@ -44,6 +44,7 @@ pydantic==2.8.2
 pydantic_core==2.20.1
 PyJWT==2.9.0
 pyngrok==7.2.0
+pypdf==4.3.1
 python-dotenv==1.0.1
 python-multipart==0.0.9
 PyYAML==6.0.1

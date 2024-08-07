@@ -1,6 +1,5 @@
 import os
 from pinecone import Pinecone
-
 from langchain_openai import ChatOpenAI
 from langchain_openai import OpenAIEmbeddings
 from langchain.callbacks import StreamingStdOutCallbackHandler

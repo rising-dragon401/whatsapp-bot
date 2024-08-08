@@ -38,10 +38,22 @@ async def add_user(user_data: dict) -> dict:
     new_user = await user_collection.find_one({"_id": user.inserted_id})
     return user_helper(new_user)
 
-async def retrieve_user(phone_number: str) -> dict:
-    user = await user_collection.find_one({"phone_number": phone_number})    
+async def retrieve_user(chat_id: str) -> dict:
+    user = await user_collection.find_one({"chat_id": chat_id})    
     if user:
-        print("\n***** Current User *****\n", user["phone_number"])
+        print("\n***** Current User *****\n", user["chat_id"])
         return user_helper(user)
     else:
         return None
+
+async def update_user(user_data: dict) -> dict:
+    filter_query = {"chat_id": user_data["chat_id"]}
+    update_query = {"$set": user_data}
+
+    result = await user_collection.update_one(filter_query, update_query)
+
+    if result.matched_count == 0:
+        return None
+    else:
+        user = await user_collection.find_one({"chat_id": user_data["chat_id"]})
+        return user_helper(user)

@@ -10,6 +10,7 @@ from ai.chat import get_ai_response
 from database.models.user import(
     add_user,
     retrieve_user,
+    update_user,
     User,
     UserRole
 )
@@ -53,6 +54,13 @@ def send_message_to_whatsApp(to_number, from_number, body = '', url = ''):
 def handle_command(chat_id, bot_phone_number, user_name, message, from_number, to_number, group_chat=False):
     print("Handling Command")
 
+    if '/start' in message:
+        send_message_to_whatsApp(from_number, to_number, 'Welcome to use our service!')
+        return
+    elif '/help' in message:
+        send_message_to_whatsApp(from_number, to_number, 'Need help with something? Send us a message @BeemoHelp')
+        return 
+
 
 async def handle_user_message(chat_id, bot_phone_number, message, from_number, to_number, group_chat=False):
     print("\n**********CURRENT TIME**********\n", datetime.now().timestamp())
@@ -60,7 +68,7 @@ async def handle_user_message(chat_id, bot_phone_number, message, from_number, t
 
     print("\n***Phone Number***\n", from_number)
 
-    bot_user = await retrieve_user(from_number)
+    bot_user = await retrieve_user(chat_id)
     chat_msg = ""
     payment_link = ""
 
@@ -87,6 +95,7 @@ async def handle_user_message(chat_id, bot_phone_number, message, from_number, t
     chat_msg = get_ai_response(chat_history, bot_user, payment_link)
     chat_history.append({"role": "assistant", "content": chat_msg})
 
+    await update_user({"phone_number": from_number, "chat_history": chat_history})
 
     send_message_to_whatsApp(from_number, to_number, chat_msg)
 

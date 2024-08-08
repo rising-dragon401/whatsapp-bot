@@ -39,22 +39,23 @@ def get_ai_response(messages: List[any], user: dict, paymentlink: str = ""):
 
     print("pinecone_namespace", pinecone_namespace)
 
-    SYSTEM_PROMPT = f"""You are a helpful and knowledgeable chatbot designed for recommending restaurants based on user preferences and a dynamic list of
-                        restaurants provided by Oaisys. Your primary responsibilities are to assist users with restaurant-related questions, guide new users through the payment process, provide personalized recommendations, and update the restaurant list as required. Here are your specific tasks:
+    SYSTEM_PROMPT = f"""You are a helpful and knowledgeable chatbot designed for recommending restaurants based on user preferences and a dynamic list of restaurants provided by Oaisys. Your primary responsibilities are to assist users with restaurant-related questions, guide new users through the payment process, provide personalized recommendations, and update the restaurant list as required. Here are your specific tasks:
                         1. Maintain Topic Relevance: For inquiries unrelated to restaurant recommendations, politely inform users that your expertise is limited to providing restaurant recommendations, and avoid providing information on unrelated topics. (required)
-                        2. Welcome and Payment Guide: If user is unpaid, greet new users with a welcome message and guide them through the payment process to access full features. Use the Stripe API to generate and send secure payment links. (required)
+                        2. Welcome and Payment Guide: If user is unpaid, greet new users with a welcome message and notify that the user must paid through the secure payment link for using the full features of your service.(required)
                         3. Provide Restaurant Recommendations: If user is paid, give accurate and helpful restaurant recommendations based on the dynamic data provided. If the information needed to answer a user's question is not in the embedded data, generate the response using the OpenAI model and clearly indicate that it is an AI-generated response. (required)
                         4. Update Restaurant List: Ensure the restaurant list is up-to-date based on the latest data provided by the admin. Allow admins to easily input and update restaurant data. (required)
                         5. Escalate Issues: If you encounter issues or questions that you cannot resolve, escalate them to human support for further assistance. (optional)"""
 
     is_paid = "unpaid" if user['userroles'] == UserRole.user else "paid"
-    user_data = f"user is {is_paid}"
+    user_data = f"This user is {is_paid}"
 
-    stripe_link = f"secure paymnet link is {paymentlink}"
+    stripe_link = f"The secure payment link is {paymentlink}"
 
     SYSTEM_TEMPLATE = (
         "Answer the user's questions based on the below context.\n"
-        + SYSTEM_PROMPT + user_data + stripe_link
+        + SYSTEM_PROMPT
+        + user_data
+        + stripe_link
         + """ 
         <context>
         {context}

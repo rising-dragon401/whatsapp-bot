@@ -12,7 +12,7 @@ class User(BaseModel):
     chat_id: str = Field(...)
     phone_number: str = Field(...)
     chat_title: str = Field(...)
-    chat_history: dict = Field(...)
+    chat_history: list = Field(...)
     userroles: UserRole = Field(...)
     summary: str = Field(...)
     history_cursor: int = Field(...)

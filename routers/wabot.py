@@ -62,6 +62,7 @@ async def handle_user_message(chat_id, bot_phone_number, message, from_number, t
 
     bot_user = await retrieve_user(from_number)
     chat_msg = ""
+    payment_link = ""
 
     if bot_user is None:
         print("Save User\n")
@@ -79,8 +80,13 @@ async def handle_user_message(chat_id, bot_phone_number, message, from_number, t
         
     if bot_user["userroles"] == UserRole.user:
         payment_link = get_payment_link(amount=20, userData = bot_user, creatorData = {"productName": "Restaurant Service", "bot_number": bot_phone_number}, chat_id = chat_id)
-        chat_msg = get_ai_response([{"role": "user", "content": message}])
-        
+
+    chat_history = bot_user["chat_history"]
+    chat_history.append({"role": "user", "content": message})
+    
+    chat_msg = get_ai_response(chat_history, bot_user, payment_link)
+    chat_history.append({"role": "assistant", "content": chat_msg})
+
 
     send_message_to_whatsApp(from_number, to_number, chat_msg)
 

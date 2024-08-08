@@ -159,4 +159,4 @@ def get_payment_link(amount: int, userData: dict, creatorData: dict, chat_id: st
     )
 
     link = get_shorten_url(res.url)
-    return link
+    return success_url

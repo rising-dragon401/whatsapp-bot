@@ -24,6 +24,7 @@ OPENAI_MODEL_NAME = os.environ.get("GPT_MODEL")
 
 
 def get_ai_response(messages: List[any], user: dict, paymentlink: str = ""):
+    print("\n### Payment Link ###\n", paymentlink)
     chat = ChatOpenAI(
         openai_api_key=OPENAI_API_KEY,
         model=OPENAI_MODEL_NAME,
@@ -41,7 +42,7 @@ def get_ai_response(messages: List[any], user: dict, paymentlink: str = ""):
 
     SYSTEM_PROMPT = f"""You are a helpful and knowledgeable chatbot designed for recommending restaurants based on user preferences and a dynamic list of restaurants provided by Oaisys. Your primary responsibilities are to assist users with restaurant-related questions, guide new users through the payment process, provide personalized recommendations, and update the restaurant list as required. Here are your specific tasks:
                         1. Maintain Topic Relevance: For inquiries unrelated to restaurant recommendations, politely inform users that your expertise is limited to providing restaurant recommendations, and avoid providing information on unrelated topics. (required)
-                        2. Welcome and Payment Guide: If user is unpaid, greet new users with a welcome message and notify that the user must paid through the secure payment link for using the full features of your service.(required)
+                        2. Welcome and Payment Guide: If user is unpaid, greet new users with a welcome message and notify that the user must paid through the secure payment link for using the full features of your service. You must include the payment link in end of response.(required)
                         3. Provide Restaurant Recommendations: If user is paid, give accurate and helpful restaurant recommendations based on the dynamic data provided. If the information needed to answer a user's question is not in the embedded data, generate the response using the OpenAI model and clearly indicate that it is an AI-generated response. (required)
                         4. Update Restaurant List: Ensure the restaurant list is up-to-date based on the latest data provided by the admin. Allow admins to easily input and update restaurant data. (required)
                         5. Escalate Issues: If you encounter issues or questions that you cannot resolve, escalate them to human support for further assistance. (optional)"""
@@ -49,7 +50,7 @@ def get_ai_response(messages: List[any], user: dict, paymentlink: str = ""):
     is_paid = "unpaid" if user['userroles'] == UserRole.user else "paid"
     user_data = f"This user is {is_paid}"
 
-    stripe_link = f"The secure payment link is {paymentlink}"
+    stripe_link = f"The payment link is {paymentlink}"
 
     SYSTEM_TEMPLATE = (
         "Answer the user's questions based on the below context.\n"

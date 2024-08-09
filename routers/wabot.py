@@ -95,9 +95,10 @@ async def handle_user_message(chat_id, bot_phone_number, message, from_number, t
     chat_msg = get_ai_response(chat_history, bot_user, payment_link)
     chat_history.append({"role": "assistant", "content": chat_msg})
 
-    await update_user({"phone_number": from_number, "chat_history": chat_history})
-
     send_message_to_whatsApp(from_number, to_number, chat_msg)
+
+    await update_user({"chat_id": chat_id, "chat_history": chat_history})
+    
 
 @router.post("/webhook")
 async def handle_bot(request: Request, From: str = Form(), To: str = Form(), WaId: str = Form(), ProfileName: Optional[str]  = Form(''), Body: Optional[str]  = Form(''), sageSid: Optional[str] = Form(None), NumMedia: Optional[int] = Form(0), MediaUrl: Optional[str] = Form(None), MediaContentType: Optional[str] = Form(None)) -> str:

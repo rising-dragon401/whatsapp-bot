@@ -129,34 +129,41 @@ def charge_customer_automatically(chat_id, amount):
         return False
 
 def get_payment_link(amount: int, userData: dict, creatorData: dict, chat_id: str):
-    success_url=os.getenv("STRIPE_SUCCESS_URL"),
-    cancel_url=os.getenv("STRIPE_CANCEL_URL"),
+    try:
+        success_url = os.getenv("STRIPE_SUCCESS_URL")
+        cancel_url = os.getenv("STRIPE_CANCEL_URL")
 
-    product_id = stripe.Product.create(name=creatorData['productName'])
-    price_id = stripe.Price.create(
-        unit_amount= amount * 100,
-        currency="usd",
-        product=product_id,
-    )
+        product_id = stripe.Product.create(name=creatorData['productName'])
+        price_id = stripe.Price.create(
+            unit_amount= amount * 100,
+            currency="usd",
+            product=product_id,
+        )
 
-    res = stripe.checkout.Session.create(
-        success_url=success_url,
-        cancel_url=cancel_url,
-        line_items=[
-            {
-                "price": price_id.id,
-                "quantity": 1,
-            },
-        ],
-        mode="payment",
-        metadata={
-            'userId': userData['_id'],
-            'phone_number': userData['phone_number'],
-            'bot_number': creatorData['bot_number'],
-            'chatId': chat_id,
-            'amount': amount * 100
-        }
-    )
+        res = stripe.checkout.Session.create(
+            success_url = success_url,
+            line_items = [
+                {
+                    "price": price_id.id,
+                    "quantity": 1,
+                },
+            ],
+            mode = "payment",
+            ui_mode = "hosted",
+            metadata = {
+                'userId': userData['id'],
+                'phone_number': userData['phone_number'],
+                'bot_number': creatorData['bot_number'],
+                'chatId': chat_id,
+                'amount': amount * 100
+            }
+        )
 
-    link = get_shorten_url(res.url)
-    return success_url
+        print(res)
+
+        link = get_shorten_url(res.url)
+        return link
+    except Exception as e:
+        print("***Error making payment link***")
+        print(e)
+        return ""

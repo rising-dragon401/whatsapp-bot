@@ -87,7 +87,7 @@ async def handle_user_message(chat_id, bot_phone_number, message, from_number, t
         })
         
     if bot_user["userroles"] == UserRole.user:
-        payment_link = get_payment_link(amount=20, userData = bot_user, creatorData = {"productName": "Restaurant Service", "bot_number": bot_phone_number}, chat_id = chat_id)
+        payment_link = get_payment_link(userData = bot_user, creatorData = {"productName": "Restaurant Service", "bot_number": bot_phone_number}, chat_id = chat_id)
 
     chat_history = bot_user["chat_history"]
     chat_history.append({"role": "user", "content": message})

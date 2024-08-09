@@ -128,8 +128,9 @@ def charge_customer_automatically(chat_id, amount):
         print(e)
         return False
 
-def get_payment_link(amount: int, userData: dict, creatorData: dict, chat_id: str):
+def get_payment_link(userData: dict, creatorData: dict, chat_id: str):
     try:
+        amount = os.getenv("STRIPE_SUBSCRIPTION_AMOUNT")
         success_url = os.getenv("STRIPE_SUCCESS_URL")
         cancel_url = os.getenv("STRIPE_CANCEL_URL")
 

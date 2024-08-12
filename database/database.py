@@ -11,4 +11,4 @@ client = motor.motor_asyncio.AsyncIOMotorClient(connection_strting)
 
 database = client.wabot
 user_collection = database.get_collection("users")
-
+payment_collection = database.get_collection("payments")

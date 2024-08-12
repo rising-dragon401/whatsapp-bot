@@ -10,7 +10,9 @@ class UserRole(str, Enum):
 
 class User(BaseModel):
     chat_id: str = Field(...)
+    name: str = Field(...)
     phone_number: str = Field(...)
+    bot_number: str = Field(...)
     chat_title: str = Field(...)
     chat_history: list = Field(...)
     userroles: UserRole = Field(...)
@@ -22,7 +24,9 @@ class User(BaseModel):
 def user_helper(user) -> dict:
     return {
         "id": str(user["_id"]),
+        "name": user["name"],
         "phone_number": user["phone_number"],
+        "bot_number": user["bot_number"],
         "chat_id": user["chat_id"],
         "chat_title": user["chat_title"],
         "chat_history": user["chat_history"],

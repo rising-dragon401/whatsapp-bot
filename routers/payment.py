@@ -64,7 +64,7 @@ async def handle_payment_success(session_id: str):
 
             send_message_to_whatsApp(metadata["phone_number"], metadata["bot_number"], body='Payment was successful.')
 
-            return RedirectResponse(url="/payment-success")
+            return {"message": "Your payment was successful!"}
         else:
             raise HTTPException(status_code=400, detail="Payment was not successful")
     except stripe.error.StripeError as e:

@@ -138,7 +138,7 @@ def get_payment_link(amount: int, userData: dict, creatorData: dict, chat_id: st
 
         session = stripe.checkout.Session.create(
             payment_method_types=['card'],
-            success_url = "https://homi.chat/api/payment/success?session_id={CHECKOUT_SESSION_ID}",
+            success_url = "https://homi.chat/payment-success?session_id={CHECKOUT_SESSION_ID}",
             line_items = [
                 {
                     "price": price_id.id,

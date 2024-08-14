@@ -4,15 +4,14 @@ import stripe
 from utils.shorten import get_shorten_url
 from dotenv import load_dotenv
 from database.models.user import(
-    add_user,
-    retrieve_user,
     User,
-    UserRole
 )
 
 load_dotenv()
 
 stripe.api_key = os.getenv("STRIPE_API_KEY")
+SUCCESS_URL = os.getenv("STRIPE_SUCCESS_URL")
+CANCEL_URL = os.getenv("STRIPE_CANCEL_URL")
 
 def update_user_after_charge(chat_id, charge_id, email='', creator=None, user=None):
     print('UPDATING USER')
@@ -128,12 +127,8 @@ def charge_customer_automatically(chat_id, amount):
         print(e)
         return False
 
-def get_payment_link(userData: dict, creatorData: dict, chat_id: str):
-    try:
-        amount = os.getenv("STRIPE_SUBSCRIPTION_AMOUNT")
-        success_url = os.getenv("STRIPE_SUCCESS_URL")
-        cancel_url = os.getenv("STRIPE_CANCEL_URL")
-
+def get_payment_link(amount: int, userData: dict, creatorData: dict, chat_id: str):
+    try:        
         product_id = stripe.Product.create(name=creatorData['productName'])
         price_id = stripe.Price.create(
             unit_amount= amount * 100,
@@ -141,8 +136,9 @@ def get_payment_link(userData: dict, creatorData: dict, chat_id: str):
             product=product_id,
         )
 
-        res = stripe.checkout.Session.create(
-            success_url = success_url,
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            success_url = "https://homi.chat/payment-success?session_id={CHECKOUT_SESSION_ID}",
             line_items = [
                 {
                     "price": price_id.id,
@@ -154,15 +150,13 @@ def get_payment_link(userData: dict, creatorData: dict, chat_id: str):
             metadata = {
                 'userId': userData['id'],
                 'phone_number': userData['phone_number'],
-                'bot_number': creatorData['bot_number'],
+                'bot_number': userData['bot_number'],
                 'chatId': chat_id,
                 'amount': amount * 100
             }
         )
 
-        print(res)
-
-        link = get_shorten_url(res.url)
+        link = get_shorten_url(session.url)
         return link
     except Exception as e:
         print("***Error making payment link***")

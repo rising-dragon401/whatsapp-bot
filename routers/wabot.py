@@ -28,11 +28,6 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def handle_command(chat_id, message, from_number, to_number, group_chat=False):
-    print("Handling Command")
-
-    print("\n***** From Number *****\n", from_number)
-    print("\n***** To Number *****\n", to_number)
-
     if '/start' in message:
         send_message_to_whatsApp(from_number, to_number, 'Welcome to use our service!')
         return
@@ -42,18 +37,11 @@ def handle_command(chat_id, message, from_number, to_number, group_chat=False):
 
 
 async def handle_user_message(chat_id, message, from_number, to_number, group_chat=False):
-    print("\n**********CURRENT TIME**********\n", datetime.now().timestamp())
-    print(message)
-
-    print("\n***Phone Number***\n", from_number)
-    print("\n***Bot Number***\n", to_number)
-
     bot_user = await retrieve_user(chat_id)
     chat_msg = ""
     payment_link = ""    
 
     if bot_user is None:
-        print("Save User\n")
         bot_user = await add_user({
             "name": "",
             "phone_number": from_number,
@@ -69,9 +57,9 @@ async def handle_user_message(chat_id, message, from_number, to_number, group_ch
         })
     
     isScribed = await isSubscribed(bot_user["id"])
-    print("\n*** Subscribed ***\n", isScribed)
-    
+
     if bot_user["userroles"] == UserRole.user or isScribed == False:
+        send_message_to_whatsApp(from_number, to_number, "Wait for a while...")
         payment_link = get_payment_link(5, userData = bot_user, creatorData = {"productName": "Restaurant Service"}, chat_id = chat_id)
     else:
         payment_link = ""
@@ -81,12 +69,12 @@ async def handle_user_message(chat_id, message, from_number, to_number, group_ch
     
     chat_msg = get_ai_response(chat_history, bot_user, payment_link, isScribed)
 
+    send_message_to_whatsApp(from_number, to_number, chat_msg)
+
     if bot_user["userroles"] == UserRole.customer:
         chat_history.append({"role": "assistant", "content": chat_msg})
-        await update_user({"chat_id": chat_id, "chat_history": chat_history})
-
-    send_message_to_whatsApp(from_number, to_number, chat_msg)
     
+    await update_user({"chat_id": chat_id, "chat_history": chat_history})
 
 @router.post("/webhook")
 async def handle_bot(request: Request, From: str = Form(), To: str = Form(), WaId: str = Form(), ProfileName: Optional[str]  = Form(''), Body: Optional[str]  = Form(''), sageSid: Optional[str] = Form(None), NumMedia: Optional[int] = Form(0), MediaUrl: Optional[str] = Form(None), MediaContentType: Optional[str] = Form(None)) -> str:

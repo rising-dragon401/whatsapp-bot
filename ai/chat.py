@@ -52,14 +52,13 @@ def get_ai_response(messages: List[any], user: dict, paymentlink: str = "", isSc
                         "...
                         Here's the link: https://tinyurl.com/23964wth.
                         ..."
-                        4. Provide Restaurant Recommendations: If user is paid, give accurate and helpful restaurant recommendations based on the dynamic data provided. If the information needed to answer a user's question is not in the embedded data, generate the response using the OpenAI model and clearly indicate that it is an AI-generated response. (required)
+                        4. Provide Restaurant Recommendations:If user is unpaid and unsubscribed, you must ignore user's question and don't answer. If user is paid and subscribed, give accurate and helpful restaurant recommendations based on the dynamic data provided. If the information needed to answer a user's question is not in the embedded data, generate the response using the OpenAI model and clearly indicate that it is an AI-generated response. (required)
                         5. Update Restaurant List: Ensure the restaurant list is up-to-date based on the latest data provided by the admin. Allow admins to easily input and update restaurant data. (required)
                         6. Escalate Issues: If you encounter issues or questions that you cannot resolve, escalate them to human support for further assistance. (optional)"""
 
     is_paid = "unpaid" if user['userroles'] == UserRole.user else "paid"
     is_scribed = "subscribed" if isScribed else "unsubscribed"
-
-    user_data = f"This user is {is_paid} and {is_scribed}"
+    user_data = f"This user is {is_paid} and {is_scribed}"    
     stripe_link = f"The payment link is {paymentlink}"
 
     SYSTEM_TEMPLATE = (

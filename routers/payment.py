@@ -1,8 +1,9 @@
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import RedirectResponse
+from fastapi.responses import JSONResponse
 import stripe
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
+from ai.chat import get_ai_response
 from utils.messaging import send_message_to_whatsApp
 from database.models.user import(
     update_user,
@@ -25,12 +26,11 @@ async def handle_payment_success(session_id: str):
         session = stripe.checkout.Session.retrieve(session_id)
 
         if session.payment_status == 'paid':
-            print("***** Payment Was Successful *****")
             metadata = session.metadata
             chatId = metadata["chatId"]
             userId = metadata["userId"]
 
-            await update_user({
+            user = await update_user({
                 "chat_id": chatId,
                 "userroles": UserRole.customer,
                 "updated_at": str(datetime.utcnow()),
@@ -42,7 +42,6 @@ async def handle_payment_success(session_id: str):
             scribed_date = paid_date + relativedelta(months = 1)
 
             if payment is None:
-                print("\n***** Add User's Payment Information *****\n")
                 payment = await add_payment({
                     "user_id": userId,
                     "paid_date": str(paid_date),
@@ -51,7 +50,6 @@ async def handle_payment_success(session_id: str):
                     "updated_at": str(datetime.utcnow()),
                 })
             else:
-                print("\n***** Update User's subscription *****\n")
                 payment = await update_subscription({
                     "user_id": userId,
                     "paid_date": str(paid_date),
@@ -59,12 +57,15 @@ async def handle_payment_success(session_id: str):
                     "updated_at": str(datetime.utcnow()),
                 })
 
-            print("\n***** Phone Number *****\n", metadata["phone_number"])
-            print("\n***** Bot Number *****\n", metadata["bot_number"])
-
             send_message_to_whatsApp(metadata["phone_number"], metadata["bot_number"], body='Payment was successful.')
 
-            return {"message": "Your payment was successful!"}
+            chat_history = user['chat_history']
+            last_history = "" if len(chat_history) == 0 else chat_history[-1]
+            if last_history["role"] == "user":
+                chat_msg = get_ai_response(chat_history, user, "", True)
+                send_message_to_whatsApp(metadata["phone_number"], metadata["bot_number"], body=chat_msg)
+
+            return JSONResponse(content={"message": "Your payment was successful!", "success": "true"}, status_code=200)
         else:
             raise HTTPException(status_code=400, detail="Payment was not successful")
     except stripe.error.StripeError as e:

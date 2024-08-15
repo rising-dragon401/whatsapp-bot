@@ -1,11 +1,8 @@
-import os
-from dotenv import load_dotenv
 import motor.motor_asyncio
 from bson.objectid import ObjectId
+from config import CONFIG
 
-load_dotenv()
-
-connection_strting = os.getenv("MONGO_URL")
+connection_strting = CONFIG.mongo_uri
 
 client = motor.motor_asyncio.AsyncIOMotorClient(connection_strting)
 

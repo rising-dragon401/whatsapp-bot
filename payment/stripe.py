@@ -1,17 +1,12 @@
-import os
 import stripe
 # from db.models.user.user import User
 from utils.shorten import get_shorten_url
-from dotenv import load_dotenv
+from config import CONFIG
 from database.models.user import(
     User,
 )
 
-load_dotenv()
-
-stripe.api_key = os.getenv("STRIPE_API_KEY")
-SUCCESS_URL = os.getenv("STRIPE_SUCCESS_URL")
-CANCEL_URL = os.getenv("STRIPE_CANCEL_URL")
+stripe.api_key = CONFIG.stripe_api_key
 
 def update_user_after_charge(chat_id, charge_id, email='', creator=None, user=None):
     print('UPDATING USER')

@@ -1,16 +1,12 @@
-from fastapi import FastAPI
-from routers import wabot, payment
+from app import app
+from routers.wabot import router as WabotRouter
+from routers.payment import router as PaymentRouter
+from routers.auth import router as AuthRouter
 
-app = FastAPI()
+app.include_router(WabotRouter)
+app.include_router(PaymentRouter)
+app.include_router(AuthRouter)
 
-app.include_router(wabot.router)
-app.include_router(payment.router)
-
-# Root route
-@app.get("/")
-async def root():
-    return {"message": "Hello World!"}
-    
 if __name__=="__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

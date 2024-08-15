@@ -1,19 +1,10 @@
-import os
 from langchain_openai import OpenAIEmbeddings
 from langchain_pinecone import PineconeVectorStore
 from pinecone import Pinecone, ServerlessSpec
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-
-from dotenv import load_dotenv
+from config import CONFIG
 import time
-
-load_dotenv()
-
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-PINECONE_KEY = os.environ.get("PINECONE_API_KEY")
-PINECONE_INDEX = os.environ.get("PINECONE_INDEX")
-PINECONE_NAMESPACE = os.environ.get("PINECONE_NAMESPACE")
 
 if __name__ == "__main__":
     loader = PyPDFLoader("Restaurant_Guide_FS.pdf", extract_images=True)
@@ -79,14 +70,14 @@ if __name__ == "__main__":
     
     print("pages len", len(pages))
 
-    embeddings_model = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
+    embeddings_model = OpenAIEmbeddings(openai_api_key=CONFIG.openai_api_key)
     # embeddings = embeddings_model.embed_documents(texts=csv_data)
 
     
-    pc = Pinecone(api_key=PINECONE_KEY)
+    pc = Pinecone(api_key=CONFIG.pinecone_api_key)
 
-    index_name = PINECONE_INDEX
-    namespace = PINECONE_NAMESPACE
+    index_name = CONFIG.pinecone_index
+    namespace = CONFIG.pinecone_namespace
 
     existing_indexes = [index_info["name"] for index_info in pc.list_indexes()]
 

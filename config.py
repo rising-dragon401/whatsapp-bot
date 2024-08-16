@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 from pydantic import BaseModel
+import bcrypt
 
 load_dotenv()
 
@@ -20,6 +21,7 @@ class Settings(BaseModel):
     stripe_api_key: str = os.environ.get("STRIPE_API_KEY")
 
     authjwt_secret_key: str = os.environ.get("JWT_SECRET_KEY")
-    salt: bytes = os.environ.get("JWT_SALT_BYTE")
+    salt_str: str = os.environ.get("JWT_SALT_BYTE")
+    salt: bytes = bcrypt.gensalt()
 
 CONFIG = Settings()

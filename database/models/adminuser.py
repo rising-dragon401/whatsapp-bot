@@ -4,9 +4,14 @@ from beanie import Document, Indexed
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 
-class AdminUserAuth(BaseModel):
-    name: str
+class AdminUserSignin(BaseModel):
     email: str
+    password: str
+
+class AdminUserSignup(BaseModel):
+    email: str
+    name: str
+    password: str
 
 class AdminUserUpdate(BaseModel):
     email: EmailStr | None = None
@@ -16,9 +21,12 @@ class AdminUserOut(AdminUserUpdate):
     email: Annotated[str, Indexed(EmailStr, unique=True)]
     disabled: bool = False
 
-class AdminUser(Document, AdminUserOut):
+class AdminUserDocument(Document, AdminUserOut):
     password: str
     email_confirmed_at: datetime | None = None
+
+    class Settings:
+        name = "adminusers"
 
     def __repr__(self) -> str:
         return f"<User {self.email}>"
@@ -30,7 +38,7 @@ class AdminUser(Document, AdminUserOut):
         return hash(self.email)
 
     def __eq__(self, other: object) -> bool:
-        if isinstance(other, AdminUser):
+        if isinstance(other, AdminUserDocument):
             return self.email == other.email
         return False
 
@@ -43,7 +51,7 @@ class AdminUser(Document, AdminUserOut):
         return {"username": self.email}
 
     @classmethod
-    async def by_email(cls, email: str) -> Optional["AdminUser"]:
+    async def by_email(cls, email: str) -> Optional["AdminUserDocument"]:
         return await cls.find_one(cls.email == email)
 
     def update_email(self, new_email: str) -> None:

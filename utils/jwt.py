@@ -1,7 +1,7 @@
 from fastapi_jwt import JwtAuthorizationCredentials, JwtAccessBearer, JwtRefreshBearer
 from datetime import timedelta
 from config import CONFIG
-from database.models.adminuser import AdminUser
+from database.models.adminuser import AdminUserDocument
 import bcrypt
 
 ACCESS_EXPIRES = timedelta(minutes=15)
@@ -19,14 +19,14 @@ refresh_security = JwtRefreshBearer(
     refresh_expires_delta=REFRESH_EXPIRES,
 )
 
-async def user_from_credentials(auth: JwtAuthorizationCredentials) -> AdminUser | None:
+async def user_from_credentials(auth: JwtAuthorizationCredentials) -> AdminUserDocument | None:
     """Return the user associated with auth credentials."""
-    return await AdminUser.by_email(auth.subject["username"])
+    return await AdminUserDocument.by_email(auth.subject["username"])
 
-async def user_from_token(token: str) -> AdminUser | None:
+async def user_from_token(token: str) -> AdminUserDocument | None:
     """Return the user associated with a token value."""
     payload = access_security._decode(token)
-    return await AdminUser.by_email(payload["subject"]["username"])
+    return await AdminUserDocument.by_email(payload["subject"]["username"])
 
 def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode(), CONFIG.salt).decode()

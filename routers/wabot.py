@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Response, Request, Form
+from fastapi import APIRouter, Response, Request, Form, HTTPException
 from datetime import datetime
 import logging
 from typing import Union, Optional
@@ -17,6 +17,15 @@ from database.models.payment import (
     Payment
 )
 from payment.stripe import get_payment_link
+from database.models.wabot import (
+    readall,
+    create,
+    read,
+    update,
+    delete,
+    WaBotDocument,
+    WaBot
+) 
 
 
 router = APIRouter(
@@ -103,3 +112,34 @@ async def handle_bot(request: Request, From: str = Form(), To: str = Form(), WaI
     except Exception as e:
         print(e)
         return "error"
+
+@router.get("/")
+async def read_list():
+    wabots = await readall()
+    return wabots
+
+@router.post("/", response_model=WaBot)
+async def create_new_bot(wabot: WaBot):
+    wabot_doc = WaBotDocument(**wabot.dict())    
+    return await create(wabot_doc)
+
+@router.get("/{wabot_id}", response_model=WaBot)
+async def read_wabot(wabot_id: str):
+    wabot = await read(wabot_id)
+    if wabot:
+        return wabot
+    raise HTTPException(status_code=404, detail="WhatsApp Bot is not found.")
+
+@router.put("/{wabot_id}", response_model=WaBot)
+async def update_wabot(wabot_id: str, wabot: WaBot):
+    update_wabot = await update(wabot_id, wabot.wabot_helper())
+    if update_wabot:
+        return update_wabot
+    raise HTTPException(status_code=404, detail="WhatsApp Bot is not found.")
+
+@router.delete("/{wabot_id}", response_model=dict)
+async def delete_wabot(wabot_id: str):
+    success = await delete(wabot_id)
+    if success:
+        return {"detail": "WhatsApp Bot is deleted."}
+    raise HTTPException(status_code=404, detail="WhatsApp Bot is not found.")

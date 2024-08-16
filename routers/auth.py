@@ -37,15 +37,11 @@ async def user_registration(user_auth: AdminUserSignup):
     print("\n*** SignUp ***\n", user_auth)
     adminuser = await AdminUserDocument.by_email(user_auth.email)
     if adminuser is not None:
-        print("\n*** AdminUser is Exist ***\n", adminuser)
         raise HTTPException(409, "User with that email already exists")
     
     hashed = hash_password(user_auth.password)
-    print("\n*** Hashed ***\n", hashed)
 
     adminuser = AdminUserDocument(name = user_auth.name, email = user_auth.email, password = hashed)
-    print("\n*** Admin User ***\n", adminuser)
-
     await adminuser.create()
 
     return adminuser

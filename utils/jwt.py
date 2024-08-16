@@ -29,4 +29,6 @@ async def user_from_token(token: str) -> AdminUserDocument | None:
     return await AdminUserDocument.by_email(payload["subject"]["username"])
 
 def hash_password(password: str) -> str:
+    salt = bcrypt.gensalt()
+    print("\### salt ###\n", CONFIG.salt)
     return bcrypt.hashpw(password.encode(), CONFIG.salt).decode()

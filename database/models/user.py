@@ -45,7 +45,6 @@ async def add_user(user_data: dict) -> dict:
 async def retrieve_user(chat_id: str) -> dict:
     user = await user_collection.find_one({"chat_id": chat_id})    
     if user:
-        print("\n***** Current User *****\n", user["chat_id"])
         return user_helper(user)
     else:
         return None

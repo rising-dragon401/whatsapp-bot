@@ -48,7 +48,7 @@ class AdminUserDocument(Document, AdminUserOut):
 
     @property
     def jwt_subject(self) -> dict[str, Any]:
-        return {"username": self.email}
+        return {"name": self.name, "email": self.email}
 
     @classmethod
     async def by_email(cls, email: str) -> Optional["AdminUserDocument"]:

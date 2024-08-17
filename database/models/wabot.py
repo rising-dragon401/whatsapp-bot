@@ -12,17 +12,6 @@ class WaBot(BaseModel):
     gpt_model: str
     openai_api_key: str
 
-    def wabot_helper(self) -> dict:
-        return {
-            "name": self.name,
-            "price": self.price,
-            "visitor": self.visitor,
-            "bot_number": self.bot_number,
-            "system_prompt": self.system_prompt,
-            "gpt_model": self.gpt_model,
-            "openai_api_key": self.openai_api_key
-        }
-
 class WaBotDocument(Document, WaBot):
     class Settings:
         name = "wabots"

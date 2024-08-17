@@ -15,7 +15,6 @@ from database.models.user import UserRole
 
 
 def get_ai_response(messages: List[any], user: dict, paymentlink: str = "", isScribed: bool = False):
-    print("\n### Payment Link ###\n", paymentlink)
     chat = ChatOpenAI(
         openai_api_key=CONFIG.openai_api_key,
         model=CONFIG.openai_model_name,

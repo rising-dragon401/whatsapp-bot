@@ -1,34 +1,44 @@
-from fastapi_jwt import JwtAuthorizationCredentials, JwtAccessBearer, JwtRefreshBearer
-from datetime import timedelta
+from fastapi_jwt import JwtAuthorizationCredentials
+from datetime import datetime, timedelta
 from config import CONFIG
 from database.models.adminuser import AdminUserDocument
 import bcrypt
+import jwt
 
-ACCESS_EXPIRES = timedelta(minutes=15)
+ACCESS_EXPIRES = timedelta(hours=1)
 REFRESH_EXPIRES = timedelta(days=30)
+ALGORITHM = "HS256"
 
-access_security = JwtAccessBearer(
-    CONFIG.authjwt_secret_key,
-    access_expires_delta=ACCESS_EXPIRES,
-    refresh_expires_delta=REFRESH_EXPIRES,
-)
+def create_access_token(data: dict) -> str:
+    to_encode = data.copy()
+    expiration = datetime.utcnow() + ACCESS_EXPIRES
+    to_encode.update({"exp": expiration})
+    encoded_jwt = jwt.encode(to_encode, CONFIG.authjwt_secret_key, algorithm=ALGORITHM)
+    return encoded_jwt
 
-refresh_security = JwtRefreshBearer(
-    CONFIG.authjwt_secret_key,
-    access_expires_delta=ACCESS_EXPIRES,
-    refresh_expires_delta=REFRESH_EXPIRES,
-)
+def create_refresh_token(data: dict) -> str:
+    to_encode = data.copy()
+    expiration = datetime.utcnow() + REFRESH_EXPIRES
+    to_encode.update({"exp": expiration})
+    encoded_jwt = jwt.encode(to_encode, CONFIG.authjwt_secret_key, algorithm=ALGORITHM)
+    return encoded_jwt
 
-async def user_from_credentials(auth: JwtAuthorizationCredentials) -> AdminUserDocument | None:
-    """Return the user associated with auth credentials."""
-    return await AdminUserDocument.by_email(auth.subject["username"])
+def verify_token(token: str) -> dict:
+    try:
+        payload = jwt.decode(token, CONFIG.authjwt_secret_key, algorithms=[ALGORITHM])
+        return payload
+    except jwt.ExpiredSignatureError:
+        return None
+    except jwt.InvalidTokenError:
+        return None
 
-async def user_from_token(token: str) -> AdminUserDocument | None:
-    """Return the user associated with a token value."""
-    payload = access_security._decode(token)
-    return await AdminUserDocument.by_email(payload["subject"]["username"])
+# async def user_from_credentials(auth: JwtAuthorizationCredentials) -> AdminUserDocument | None:
+#     return await AdminUserDocument.by_email(auth.subject["email"])
+
+# async def user_from_token(token: str) -> AdminUserDocument | None:
+#     payload = access_security._decode(token)
+#     return await AdminUserDocument.by_email(payload["subject"]["email"])
 
 def hash_password(password: str) -> str:
     salt = bcrypt.gensalt()
-    print("\### salt ###\n", CONFIG.salt)
     return bcrypt.hashpw(password.encode(), CONFIG.salt).decode()

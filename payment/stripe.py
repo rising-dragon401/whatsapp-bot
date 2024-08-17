@@ -154,6 +154,5 @@ def get_payment_link(amount: int, userData: dict, creatorData: dict, chat_id: st
         link = get_shorten_url(session.url)
         return link
     except Exception as e:
-        print("***Error making payment link***")
         print(e)
         return ""

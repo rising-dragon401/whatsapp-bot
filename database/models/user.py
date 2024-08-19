@@ -22,23 +22,6 @@ class User(BaseModel):
     created_at: str = Field(...)
     updated_at: str = Field(...)
 
-def user_helper(user) -> dict:
-    return {
-        "id": str(user["_id"]),
-        "name": user["name"],
-        "phone_number": user["phone_number"],
-        "bot_number": user["bot_number"],
-        "bot_id": user["bot_id"],
-        "chat_id": user["chat_id"],
-        "chat_title": user["chat_title"],
-        "chat_history": user["chat_history"],
-        "userroles": user["userroles"],
-        "summary": user["summary"],
-        "history_cursor": user["history_cursor"],
-        "created_at": user["created_at"],
-        "updated_at": user["updated_at"],
-    }
-
 class UserDocument(Document, User):
     class Settings:
         name = "users"

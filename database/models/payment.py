@@ -11,17 +11,6 @@ class Payment(BaseModel):
     created_at: str = Field(...)
     updated_at: str = Field(...)
 
-def payment_helper(payment) -> dict:
-    return {
-        "id": str(payment["_id"]),
-        "user_id": payment["user_id"],
-        "bot_id": payment["bot_id"],
-        "paid_date": payment["paid_date"],
-        "subscription_date": payment["subscription_date"],
-        "created_at": payment["created_at"],
-        "updated_at": payment["updated_at"]
-    }
-
 class PaymentDocument(Document, Payment):
     class Settings:
         name = "payments"

@@ -8,10 +8,17 @@ from database.models.user import(
     add_user,
     retrieve_user,
     update_user,
-    UserRole
+    UserRole,
+    User,
+    UserDocument
 )
 from database.models.payment import (
+    retrieve_payment,
     isSubscribed,
+)
+from database.models.wabot import (
+    retrieve_bot,
+    update
 )
 
 from payment.stripe import get_payment_link
@@ -34,41 +41,49 @@ def handle_command(chat_id, message, from_number, to_number, group_chat=False):
 
 
 async def handle_user_message(chat_id, message, from_number, to_number, group_chat=False):
+    bot = await retrieve_bot(to_number)
+
+    if bot is None:
+        send_message_to_whatsApp(from_number, to_number, "Sorry, This is not registered number.")
+        return
+
     bot_user = await retrieve_user(chat_id)
     chat_msg = ""
-    payment_link = ""    
+    payment_link = ""
 
     if bot_user is None:
-        bot_user = await add_user({
-            "name": "",
-            "phone_number": from_number,
-            "bot_number": to_number,
-            "chat_id": chat_id,
-            "chat_title": from_number,
-            "chat_history": [],
-            "userroles": UserRole.user,
-            "summary": "",
-            "history_cursor": 0,
-            "created_at": str(datetime.utcnow()),
-            "updated_at": str(datetime.utcnow()),
-        })
+        bot_user = await add_user(UserDocument(
+            name = "",
+            phone_number = from_number,
+            bot_number = to_number,
+            bot_id = str(bot.id),
+            chat_id = chat_id,
+            chat_title = from_number,
+            chat_history = [],
+            userroles = UserRole.user,
+            summary = "",
+            history_cursor = 0,
+            created_at = str(datetime.utcnow()),
+            updated_at = str(datetime.utcnow()),
+        ))
+        await update(bot.id, {"visitor": bot.visitor + 1})
     
-    isScribed = await isSubscribed(bot_user["id"])
+    isScribed = await isSubscribed(str(bot_user.id))
 
-    if bot_user["userroles"] == UserRole.user or isScribed == False:
+    if bot_user.userroles == UserRole.user or isScribed == False:
         send_message_to_whatsApp(from_number, to_number, "Wait for a while...")
-        payment_link = get_payment_link(5, userData = bot_user, creatorData = {"productName": "Restaurant Service"}, chat_id = chat_id)
+        payment_link = get_payment_link(amount=bot.price, userData = bot_user.model_dump(), creatorData = {"productName": bot.name}, chat_id = chat_id)
     else:
         payment_link = ""
 
-    chat_history = [] if bot_user["userroles"] == UserRole.user else bot_user["chat_history"]
+    chat_history = [] if bot_user.userroles == UserRole.user else bot_user.chat_history
     chat_history.append({"role": "user", "content": message})
     
-    chat_msg = get_ai_response(chat_history, bot_user, payment_link, isScribed)
+    chat_msg = get_ai_response(bot.system_prompt, chat_history, bot_user.model_dump(), payment_link, isScribed)
 
     send_message_to_whatsApp(from_number, to_number, chat_msg)
 
-    if bot_user["userroles"] == UserRole.customer:
+    if bot_user.userroles == UserRole.customer:
         chat_history.append({"role": "assistant", "content": chat_msg})
     
     await update_user({"chat_id": chat_id, "chat_history": chat_history})

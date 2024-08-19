@@ -123,7 +123,7 @@ def charge_customer_automatically(chat_id, amount):
         return False
 
 def get_payment_link(amount: int, userData: dict, creatorData: dict, chat_id: str):
-    try:        
+    try:
         product_id = stripe.Product.create(name=creatorData['productName'])
         price_id = stripe.Price.create(
             unit_amount= amount * 100,
@@ -143,9 +143,10 @@ def get_payment_link(amount: int, userData: dict, creatorData: dict, chat_id: st
             mode = "payment",
             ui_mode = "hosted",
             metadata = {
-                'userId': userData['id'],
-                'phone_number': userData['phone_number'],
-                'bot_number': userData['bot_number'],
+                'userId': userData["id"],
+                'phone_number': userData["phone_number"],
+                'bot_number': userData["bot_number"],
+                'botId': userData["bot_id"],
                 'chatId': chat_id,
                 'amount': amount * 100
             }

@@ -8,7 +8,9 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         bypass_paths = [
             "/api/auth/signin",
-            "/api/auth/signup"
+            "/api/auth/signup",
+            "/api/messaging/webhook",
+            "/api/payment/success"
         ]
 
         if request.url.path in bypass_paths:

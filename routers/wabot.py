@@ -27,7 +27,7 @@ async def read_list(request: Request):
 
 @router.post("/", response_model=WaBot)
 async def create_new_bot(wabot: WaBot):
-    wabot_doc = WaBotDocument(**wabot.dict())
+    wabot_doc = WaBotDocument(**wabot.model_dump())
     return await create(wabot_doc)
 
 @router.get("/{wabot_id}", response_model=WaBot)
@@ -39,7 +39,7 @@ async def read_wabot(wabot_id: str):
 
 @router.put("/{wabot_id}", response_model=WaBot)
 async def update_wabot(wabot_id: str, wabot: WaBot):
-    update_wabot = await update(wabot_id, wabot.dict())
+    update_wabot = await update(wabot_id, wabot.model_dump())
     if update_wabot:
         return update_wabot
     raise HTTPException(status_code=404, detail="WhatsApp Bot is not found.")

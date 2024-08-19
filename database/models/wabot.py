@@ -5,7 +5,7 @@ from typing import Optional
 class WaBot(BaseModel):
     name: str
     description: Optional[str] = None
-    price: float
+    price: int
     visitor: Optional[int] = 0
     bot_number: str
     system_prompt: str
@@ -24,6 +24,9 @@ async def readall() -> list[WaBotDocument]:
 
 async def read(wabot_id: str) -> WaBotDocument:
     return await WaBotDocument.get(wabot_id)
+
+async def retrieve_bot(bot_number: str) -> WaBotDocument:
+    return await WaBotDocument.find_one({"bot_number": bot_number})
 
 async def update(wabot_id: str, wabot_update: dict) -> WaBotDocument:
     wabot = await WaBotDocument.get(wabot_id)

@@ -1,7 +1,7 @@
 from typing import Optional
 from pydantic import BaseModel, Field
+from beanie import Document
 from enum import Enum
-from database.database import user_collection
 
 class UserRole(str, Enum):
     admin = "admin"
@@ -13,6 +13,7 @@ class User(BaseModel):
     name: str = Field(...)
     phone_number: str = Field(...)
     bot_number: str = Field(...)
+    bot_id: str = Field(...)
     chat_title: str = Field(...)
     chat_history: list = Field(...)
     userroles: UserRole = Field(...)
@@ -27,6 +28,7 @@ def user_helper(user) -> dict:
         "name": user["name"],
         "phone_number": user["phone_number"],
         "bot_number": user["bot_number"],
+        "bot_id": user["bot_id"],
         "chat_id": user["chat_id"],
         "chat_title": user["chat_title"],
         "chat_history": user["chat_history"],
@@ -37,26 +39,18 @@ def user_helper(user) -> dict:
         "updated_at": user["updated_at"],
     }
 
-async def add_user(user_data: dict) -> dict:
-    user = await user_collection.insert_one(user_data)
-    new_user = await user_collection.find_one({"_id": user.inserted_id})
-    return user_helper(new_user)
+class UserDocument(Document, User):
+    class Settings:
+        name = "users"
 
-async def retrieve_user(chat_id: str) -> dict:
-    user = await user_collection.find_one({"chat_id": chat_id})    
+async def add_user(user: UserDocument) -> UserDocument:
+    return await user.insert()
+
+async def retrieve_user(chat_id: str) -> UserDocument:
+    return await UserDocument.find_one({"chat_id": chat_id})
+
+async def update_user(user_data: dict) -> UserDocument:
+    user = await UserDocument.find_one({"chat_id": user_data["chat_id"]})
     if user:
-        return user_helper(user)
-    else:
-        return None
-
-async def update_user(user_data: dict) -> dict:
-    filter_query = {"chat_id": user_data["chat_id"]}
-    update_query = {"$set": user_data}
-
-    result = await user_collection.update_one(filter_query, update_query)
-
-    if result.matched_count == 0:
-        return None
-    else:
-        user = await user_collection.find_one({"chat_id": user_data["chat_id"]})
-        return user_helper(user)
+        user = await user.update({"$set": user_data})
+    return user

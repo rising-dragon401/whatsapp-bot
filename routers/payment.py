@@ -12,7 +12,8 @@ from database.models.user import(
 from database.models.payment import(
     add_payment,
     retrieve_payment,
-    update_subscription
+    update_subscription,
+    PaymentDocument
 )
 
 router = APIRouter(
@@ -29,6 +30,7 @@ async def handle_payment_success(session_id: str):
             metadata = session.metadata
             chatId = metadata["chatId"]
             userId = metadata["userId"]
+            botId = metadata["botId"]
 
             user = await update_user({
                 "chat_id": chatId,
@@ -42,13 +44,14 @@ async def handle_payment_success(session_id: str):
             scribed_date = paid_date + relativedelta(months = 1)
 
             if payment is None:
-                payment = await add_payment({
-                    "user_id": userId,
-                    "paid_date": str(paid_date),
-                    "subscription_date": str(scribed_date),
-                    "created_at": str(datetime.utcnow()),
-                    "updated_at": str(datetime.utcnow()),
-                })
+                payment = await add_payment(PaymentDocument(
+                    user_id = userId,
+                    bot_id = botId,
+                    paid_date = str(paid_date),
+                    subscription_date = str(scribed_date),
+                    created_at = str(datetime.utcnow()),
+                    updated_at = str(datetime.utcnow()),
+                ))
             else:
                 payment = await update_subscription({
                     "user_id": userId,
@@ -59,7 +62,7 @@ async def handle_payment_success(session_id: str):
 
             send_message_to_whatsApp(metadata["phone_number"], metadata["bot_number"], body='Payment was successful.')
 
-            chat_history = user['chat_history']
+            chat_history = user.chat_history
             last_history = "" if len(chat_history) == 0 else chat_history[-1]
             if last_history["role"] == "user":
                 chat_msg = get_ai_response(chat_history, user, "", True)

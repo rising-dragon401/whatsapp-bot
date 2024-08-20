@@ -7,6 +7,7 @@ from database.models.adminuser import AdminUserDocument
 from database.models.wabot import WaBotDocument
 from database.models.user import UserDocument
 from database.models.payment import PaymentDocument
+from database.models.pdffile import PdfFileDocument
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -15,6 +16,7 @@ async def lifespan(app: FastAPI):
         AdminUserDocument,
         WaBotDocument,
         UserDocument,
-        PaymentDocument
+        PaymentDocument,
+        PdfFileDocument
     ])
     yield

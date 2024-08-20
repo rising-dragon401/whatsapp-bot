@@ -23,8 +23,8 @@ async def signin(user_auth: AdminUserSignin) ->  RefreshToken:
     return RefreshToken(access_token=access_token, refresh_token=refresh_token)
 
 @router.post("/refresh")
-async def refresh(refresh_token: str):
-    payload = verify_token(refresh_token)
+async def refresh(token: RefreshToken) -> AccessToken:
+    payload = verify_token(token.refresh_token)
     if payload:
         access_token = create_access_token({"sub": payload["sub"]})
         return AccessToken(access_token=access_token)

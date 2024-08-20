@@ -1,5 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
-from middleware.jwtauth import JWTAuthMiddleware
+from fastapi import APIRouter, HTTPException
 from starlette.requests import Request
 import logging
 from database.models.wabot import (
@@ -10,7 +9,7 @@ from database.models.wabot import (
     delete,
     WaBotDocument,
     WaBot
-) 
+)
 
 router = APIRouter(
     prefix="/api/wabot",

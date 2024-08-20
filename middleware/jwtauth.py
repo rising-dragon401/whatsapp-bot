@@ -9,6 +9,7 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):
         bypass_paths = [
             "/api/auth/signin",
             "/api/auth/signup",
+            "/api/auth/refresh",
             "/api/messaging/webhook",
             "/api/payment/success"
         ]

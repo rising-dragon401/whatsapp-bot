@@ -6,8 +6,20 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from config import CONFIG
 import time
 
-if __name__ == "__main__":
-    loader = PyPDFLoader("Restaurant_Guide_FS.pdf", extract_images=True)
+def initate_indexs():
+    pc = Pinecone(api_key=CONFIG.pinecone_api_key)
+
+    index_name = CONFIG.pinecone_index
+    namespace = CONFIG.pinecone_namespace
+
+    existing_indexes = [index_info["name"] for index_info in pc.list_indexes()]
+
+    if index_name in existing_indexes:
+        pc.delete_index(index_name)
+
+def embedding_pdf_file(pathname: str):
+    print("\n***** Starting Embedding *****\n")
+    loader = PyPDFLoader(pathname, extract_images=True)
     splitter = RecursiveCharacterTextSplitter(chunk_size=300, chunk_overlap=60, separators=[
         "\n\n",
         "\n",

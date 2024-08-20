@@ -5,8 +5,8 @@ from database.models.adminuser import AdminUserDocument
 import bcrypt
 import jwt
 
-ACCESS_EXPIRES = timedelta(hours=1)
-REFRESH_EXPIRES = timedelta(days=30)
+ACCESS_EXPIRES = timedelta(hours=6)
+REFRESH_EXPIRES = timedelta(days=3)
 ALGORITHM = "HS256"
 
 def create_access_token(data: dict) -> str:

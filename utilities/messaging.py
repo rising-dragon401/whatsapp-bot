@@ -1,14 +1,9 @@
-import os
-from dotenv import load_dotenv
 from twilio.twiml.messaging_response import MessagingResponse
 from twilio.rest import Client
+from config import CONFIG
 import logging
 
-load_dotenv()
-
-account_sid = os.getenv('TWILIO_ACCOUNT_SID')
-auth_token = os.getenv('TWILIO_AUTH_TOKEN')
-client = Client(account_sid, auth_token)
+client = Client(CONFIG.twilio_account_sid, CONFIG.twilio_auth_token)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

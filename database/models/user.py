@@ -26,6 +26,15 @@ class UserDocument(Document, User):
     class Settings:
         name = "users"
 
+async def read_all() -> list[UserDocument]:
+    return await UserDocument.find_all().to_list()
+
+async def read_all_with_botid(bot_id: str) -> list[UserDocument]:
+    return await UserDocument.find({"bot_id": bot_id}).to_list()
+
+async def get_user(user_id: str) -> UserDocument:
+    return await UserDocument.get(user_id)
+
 async def add_user(user: UserDocument) -> UserDocument:
     return await user.insert()
 

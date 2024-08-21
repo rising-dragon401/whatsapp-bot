@@ -1,10 +1,10 @@
 from fastapi import APIRouter, HTTPException
 from starlette.requests import Request
 import logging
-from database.models.pdffile import (
-    all_pdf_files,
-    add_pdf_file,
-    delete_pdf_file,
+from database.models.pdffiles import (
+    read_all_pdffiles,
+    create_pdffile,
+    delete_pdffile,
     PdfFileDocument,
     PdfFile,
 )
@@ -15,26 +15,26 @@ from embedding.embedding import (
 )
 
 router = APIRouter(
-    prefix="/api/pdffile",
-    tags=["pdffile"],
+    prefix="/api/pdffiles",
+    tags=["pdffiles"],
 )
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 @router.get("/")
-async def read_pdf_files():
-    pdffiles = await all_pdf_files()
+async def getAllPdfFiles():
+    pdffiles = await read_all_pdffiles()
     return pdffiles
 
 @router.post("/", response_model=PdfFile)
-async def create_new_pdffile(pdffile: PdfFile):
+async def createPdfFile(pdffile: PdfFile):
     pdffile_doc = PdfFileDocument(**pdffile.model_dump())
-    return await add_pdf_file(pdffile_doc)
+    return await create_pdffile(pdffile_doc)
 
 @router.delete("/{pdffile_id}", response_model=dict)
-async def delete_pdffile(pdffile_id: str):
-    filepath = await delete_pdf_file(pdffile_id)
+async def deletePdfFile(pdffile_id: str):
+    filepath = await delete_pdffile(pdffile_id)
     if len(filepath) > 0:
         if not os.path.isfile(filepath):
             raise HTTPException(status_code=404, detail="File not found")
@@ -48,10 +48,10 @@ async def delete_pdffile(pdffile_id: str):
     raise HTTPException(status_code=404, detail="PDF File is not found.")
 
 @router.post("/embedding")
-async def embedding_data():
+async def embeddingData():
     try:
         initate_indexs()
-        pdfdocs = await all_pdf_files()
+        pdfdocs = await read_all_pdffiles()
         for pdfdoc in pdfdocs:
             embedding_pdf_file(pdfdoc.path)
         return {"detaile": "Embedding is successfully!"}

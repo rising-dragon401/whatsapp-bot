@@ -5,7 +5,7 @@ from routers.auth import router as AuthRouter
 from routers.messaging import router as MessagingRouter
 from routers.data import router as DataRouter
 from routers.pdffile import router as PdffileRouter
-from routers.user import router as UserRouter
+from routers.botuser import router as UserRouter
 
 app.include_router(WabotRouter)
 app.include_router(PaymentRouter)

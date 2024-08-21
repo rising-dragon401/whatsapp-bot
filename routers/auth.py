@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
-from database.models.adminuser import AdminUserDocument, AdminUserSignup, AdminUserSignin, AdminUserOut
+from database.models.adminusers import AdminUserDocument, AdminUserSignup, AdminUserSignin, AdminUserOut
 from database.models.auth import AccessToken, RefreshToken
-from utils.jwt import create_access_token, create_refresh_token, verify_token, hash_password
+from utilities.jwt import create_access_token, create_refresh_token, verify_token, hash_password
 
 router = APIRouter(
     prefix="/api/auth",

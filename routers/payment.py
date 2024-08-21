@@ -4,21 +4,21 @@ import stripe
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from ai.chat import get_ai_response
-from utils.messaging import send_message_to_whatsApp
-from database.models.user import(
-    update_user,
+from utilities.messaging import send_message_to_whatsApp
+from database.models.botusers import(
+    update_botuser,
     UserRole
 )
-from database.models.payment import(
-    add_payment,
+from database.models.payments import(
+    create_payment,
     retrieve_payment,
     update_subscription,
     PaymentDocument
 )
 
 router = APIRouter(
-    prefix="/api/payment",
-    tags=["payment"],
+    prefix="/api/payments",
+    tags=["payments"],
 )
 
 @router.get("/success")
@@ -32,19 +32,19 @@ async def handle_payment_success(session_id: str):
             userId = metadata["userId"]
             botId = metadata["botId"]
 
-            user = await update_user({
+            user = await update_botuser({
                 "chat_id": chatId,
                 "userroles": UserRole.customer,
                 "updated_at": str(datetime.utcnow()),
             })
 
-            payment = await retrieve_payment(userId)
+            payment = await retrieve_payment({"user_id": userId})
 
             paid_date = datetime.utcnow()
             scribed_date = paid_date + relativedelta(months = 1)
 
             if payment is None:
-                payment = await add_payment(PaymentDocument(
+                payment = await create_payment(PaymentDocument(
                     user_id = userId,
                     bot_id = botId,
                     paid_date = str(paid_date),

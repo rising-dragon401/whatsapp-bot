@@ -3,25 +3,22 @@ from datetime import datetime
 import logging
 from typing import Optional
 from ai.chat import get_ai_response
-from utils.messaging import send_message_to_whatsApp
-from database.models.user import(
-    add_user,
-    retrieve_user,
-    update_user,
+from utilities. messaging import send_message_to_whatsApp
+from database.models.botusers import(
+    create_botuser,
+    update_botuser,
+    retrieve_botuser,
     UserRole,
-    User,
-    UserDocument
+    BotUserDocument
 )
-from database.models.payment import (
-    retrieve_payment,
+from database.models.payments import (
     isSubscribed,
 )
-from database.models.wabot import (
-    retrieve_bot,
-    update
+from database.models.wabots import (
+    retrieve_wabot,
 )
 
-from payment.stripe import get_payment_link
+from utilities.stripe import get_payment_link
 
 router = APIRouter(
     prefix="/api/messaging",
@@ -41,18 +38,18 @@ def handle_command(chat_id, message, from_number, to_number, group_chat=False):
 
 
 async def handle_user_message(chat_id, message, from_number, to_number, group_chat=False):
-    bot = await retrieve_bot(to_number)
+    bot = await retrieve_wabot({"bot_number": to_number})
 
     if bot is None:
         send_message_to_whatsApp(from_number, to_number, "Sorry, This is not registered number.")
         return
 
-    bot_user = await retrieve_user(chat_id)
+    bot_user = await retrieve_botuser({"chat_id": chat_id})
     chat_msg = ""
     payment_link = ""
 
     if bot_user is None:
-        bot_user = await add_user(UserDocument(
+        bot_user = await create_botuser(BotUserDocument(
             name = "",
             phone_number = from_number,
             bot_number = to_number,
@@ -66,7 +63,7 @@ async def handle_user_message(chat_id, message, from_number, to_number, group_ch
             created_at = str(datetime.utcnow()),
             updated_at = str(datetime.utcnow()),
         ))
-        await update(bot.id, {"visitor": bot.visitor + 1})
+        await update_botuser(bot.id, {"visitor": bot.visitor + 1})
     
     isScribed = await isSubscribed(str(bot_user.id))
 
@@ -86,7 +83,7 @@ async def handle_user_message(chat_id, message, from_number, to_number, group_ch
     if bot_user.userroles == UserRole.customer:
         chat_history.append({"role": "assistant", "content": chat_msg})
     
-    await update_user({"chat_id": chat_id, "chat_history": chat_history})
+    await update_botuser({"chat_id": chat_id, "chat_history": chat_history})
 
 @router.post("/webhook")
 async def handle_bot(request: Request, From: str = Form(), To: str = Form(), WaId: str = Form(), ProfileName: Optional[str]  = Form(''), Body: Optional[str]  = Form(''), sageSid: Optional[str] = Form(None), NumMedia: Optional[int] = Form(0), MediaUrl: Optional[str] = Form(None), MediaContentType: Optional[str] = Form(None)) -> str:

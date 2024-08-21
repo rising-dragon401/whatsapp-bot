@@ -1,6 +1,6 @@
 from datetime import timedelta
 from pydantic import BaseModel
-from utils.jwt import ACCESS_EXPIRES, REFRESH_EXPIRES
+from utilities.jwt import ACCESS_EXPIRES, REFRESH_EXPIRES
 
 class AccessToken(BaseModel):
     access_token: str

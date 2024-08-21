@@ -15,11 +15,11 @@ class PaymentDocument(Document, Payment):
     class Settings:
         name = "payments"
 
-async def add_payment(payment: PaymentDocument) -> PaymentDocument:
+async def create_payment(payment: PaymentDocument) -> PaymentDocument:
     return await payment.insert()
 
-async def retrieve_payment(user_id: str) -> PaymentDocument:
-    return await PaymentDocument.find_one({"user_id": user_id})    
+async def retrieve_payment(searchParams: dict) -> PaymentDocument:
+    return await PaymentDocument.find_one(searchParams)    
 
 async def update_subscription(payment_data: dict) -> PaymentDocument:
     payment = await PaymentDocument.find_one({"user_id": payment_data["user_id"]})

@@ -1,7 +1,7 @@
 from fastapi_jwt import JwtAuthorizationCredentials
 from datetime import datetime, timedelta
 from config import CONFIG
-from database.models.adminuser import AdminUserDocument
+from database.models.adminusers import AdminUserDocument
 import bcrypt
 import jwt
 

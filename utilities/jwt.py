@@ -40,5 +40,4 @@ def verify_token(token: str) -> dict:
 #     return await AdminUserDocument.by_email(payload["subject"]["email"])
 
 def hash_password(password: str) -> str:
-    salt = bcrypt.gensalt()
     return bcrypt.hashpw(password.encode(), CONFIG.salt).decode()

@@ -20,8 +20,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 @router.get("/")
-async def getAllWaBots(request: Request):
-    wabots = await read_all_wabots()
+async def getAllWaBots(admin_id: str, permission: str):
+    wabots = await read_all_wabots(admin_id, permission)
     return wabots
 
 @router.post("/", response_model=WaBot)
@@ -38,9 +38,9 @@ async def readWaBot(wabot_id: str):
 
 @router.put("/{wabot_id}", response_model=WaBot)
 async def updateWaBot(wabot_id: str, wabot: WaBot):
-    update_wabot = await update_wabot(wabot_id, wabot.model_dump())
-    if update_wabot:
-        return update_wabot
+    updatedWabot = await update_wabot(wabot_id, wabot.model_dump())
+    if updatedWabot:
+        return updatedWabot
     raise HTTPException(status_code=404, detail="WhatsApp Bot is not found.")
 
 @router.delete("/{wabot_id}", response_model=dict)

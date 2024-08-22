@@ -1,12 +1,7 @@
 from typing import Optional
 from pydantic import BaseModel, Field
 from beanie import Document
-from enum import Enum
-
-class UserRole(str, Enum):
-    admin = "admin"
-    user = "user"
-    customer = "customer"
+from database.models.common import UserRole
 
 class BotUser(BaseModel):
     chat_id: str = Field(...)
@@ -24,7 +19,7 @@ class BotUser(BaseModel):
 
 class BotUserDocument(Document, BotUser):
     class Settings:
-        name = "users"
+        name = "botusers"
 
 async def read_all_botusers(bot_id: str) -> list[BotUserDocument]:
     if  len(bot_id) == 0:

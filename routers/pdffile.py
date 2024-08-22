@@ -23,8 +23,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 @router.get("/")
-async def getAllPdfFiles():
-    pdffiles = await read_all_pdffiles()
+async def getAllPdfFiles(admin_id: str, permission: str):
+    pdffiles = await read_all_pdffiles(admin_id, permission)
     return pdffiles
 
 @router.post("/", response_model=PdfFile)

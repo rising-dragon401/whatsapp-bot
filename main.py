@@ -6,14 +6,18 @@ from routers.messaging import router as MessagingRouter
 from routers.data import router as DataRouter
 from routers.pdffile import router as PdffileRouter
 from routers.botuser import router as UserRouter
+from routers.adminuser import router as AdminUserRouter
 
+# API Routers
 app.include_router(WabotRouter)
 app.include_router(PaymentRouter)
 app.include_router(AuthRouter)
 app.include_router(MessagingRouter)
 app.include_router(PdffileRouter)
 app.include_router(UserRouter)
+app.include_router(AdminUserRouter)
 
+# WebSocket Routers
 app.include_router(DataRouter)
 
 if __name__=="__main__":

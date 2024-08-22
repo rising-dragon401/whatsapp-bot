@@ -4,11 +4,11 @@ import logging
 from typing import Optional
 from ai.chat import get_ai_response
 from utilities. messaging import send_message_to_whatsApp
+from database.models.common import UserRole
 from database.models.botusers import(
     create_botuser,
     update_botuser,
     retrieve_botuser,
-    UserRole,
     BotUserDocument
 )
 from database.models.payments import (

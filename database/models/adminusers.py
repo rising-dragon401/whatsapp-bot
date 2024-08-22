@@ -3,6 +3,16 @@ from typing import Annotated, Any, Optional
 from beanie import Document, Indexed
 from pydantic import BaseModel, EmailStr
 from typing import Optional
+from database.models.common import AdminUserPermission
+
+class BotManager:
+    def __init__(self, id, email, name, avatar, botCount, permission):
+        self.id = id
+        self.email = email
+        self.name = name
+        self.avatar = avatar
+        self.botCount = botCount
+        self.permission = permission
 
 class AdminUserSignin(BaseModel):
     email: str
@@ -16,9 +26,11 @@ class AdminUserSignup(BaseModel):
 class AdminUserUpdate(BaseModel):
     email: EmailStr | None = None
     name: str | None = None
+    permission: str = AdminUserPermission.normal
 
 class AdminUserOut(AdminUserUpdate):
     email: Annotated[str, Indexed(EmailStr, unique=True)]
+    botCount: int | None = 0
     disabled: bool = False
 
 class AdminUserDocument(Document, AdminUserOut):
@@ -48,11 +60,27 @@ class AdminUserDocument(Document, AdminUserOut):
 
     @property
     def jwt_subject(self) -> dict[str, Any]:
-        return {"name": self.name, "email": self.email}
+        return {"name": self.name, "email": self.email, "permission": self.permission, "id": str(self.id)}
 
     @classmethod
     async def by_email(cls, email: str) -> Optional["AdminUserDocument"]:
         return await cls.find_one(cls.email == email)
-
+    
     def update_email(self, new_email: str) -> None:
         self.email = new_email
+
+async def read_all_adminusers(admin_id: str, permission: str) -> list[AdminUserDocument]:
+    if permission == AdminUserPermission.admin:
+        return await AdminUserDocument.find_all().to_list()
+    else:
+        return await AdminUserDocument.find({"admin_id": admin_id}).to_list()
+
+async def increase_botcount(admin_id: str) -> None:
+    adminUser = await AdminUserDocument.get(admin_id)
+    if (adminUser):
+        await adminUser.update({"$set": {"botCount": adminUser.botCount+1}})
+
+async def decrease_botcount(admin_id: str) -> None:
+    adminUser = await AdminUserDocument.get(admin_id)
+    if (adminUser):
+        await adminUser.update({"$set": {"botCount": adminUser.botCount-1}})

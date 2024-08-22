@@ -5,9 +5,9 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from ai.chat import get_ai_response
 from utilities.messaging import send_message_to_whatsApp
+from database.models.common import UserRole
 from database.models.botusers import(
     update_botuser,
-    UserRole
 )
 from database.models.payments import(
     create_payment,

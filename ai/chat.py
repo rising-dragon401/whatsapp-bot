@@ -11,8 +11,7 @@ from langchain_core.runnables import RunnableBranch
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from typing import List
 from config import CONFIG
-from database.models.botusers import UserRole
-
+from database.models.common import UserRole
 
 def get_ai_response(system_prompt: str, messages: List[any], user: dict, paymentlink: str = "", isScribed: bool = False):
     chat = ChatOpenAI(
